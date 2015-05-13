@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 
+//To change how the score works, just look at the calculateAlignment function
 #define GAP_VALUE -2
 #define MATCH_VALUE 1
 #define MISMATCH_VALUE -1
@@ -10,16 +11,24 @@ using namespace std;
 #define LEFT 2
 #define DIRECTION int
 
+//Directive to choose the input
+#define INPUT 2
 
-//char s[] = "eAAAC"; //5 + \nul
-//char t[] = "eAGC"; //4 + \null
-//#define M 5
-//#define N 4
+#if INPUT == 1
+//input 1 - Exemplo da apostila (página 7/11)
+char s[] = "eAAAC"; //5 + \nul
+char t[] = "eAGC"; //4 + \null
+#define M 5
+#define N 4
 
+#elif INPUT == 2
+//input 2 - Exercicio da Lista 7
 char s[] = "0ATACTACGGAGGG"; //14 + \nul
 char t[] = "0GAACGTAGGCGTAT"; //15 + \null
 #define M 14
 #define N 15
+
+#endif
 
 int a[M][N];
 
@@ -29,67 +38,72 @@ void printRecursiveT (int i, int j);
 void printRestOfT (int j);
 void printRecursiveS(int i, int j);
 void printRestOfS (int i);
+void printLCSS (int i, int j);
+void printLCST (int i, int j);
 void printS(int i, int j);
 void printT(int i, int j);
 
 int main(){
+    //Print Sequences
+    cout <<"Sequence S = ";
+    for (int k = 1; k < M; ++k) cout<<s[k];
+    cout <<"\tSize = "<< M << endl;
 
+    cout << "Sequence T = ";
+    for (int k = 1; k < N; ++k) cout<<t[k];
+    cout <<"\tSize = "<< N << endl;
+
+    cout << endl;
     //Init with 0 (Local Algorithm) first column and row
     for (int i = 0; i < M ; ++i) a[i] [0] = 0;
     for (int j = 0; j < N; ++j) a[0] [j] = 0;
 
-    for (int i = 1; i < M; ++i) {
-
-        for (int j = 1; j < N; ++j) {
+    //Calculate Matrix
+    for (int i = 1; i < M; ++i)
+        for (int j = 1; j < N; ++j)
             a[i][j] = calculateAlignment(i,j);
 
-        }
-
-    }
-
-    //output matrix
+    //Print Matrix
     for (int i = 0; i < M; ++i) {
-        for (int j = 0; j < N; ++j) {
-            cout << a[i][j] << " ";
-        }
+        for (int j = 0; j < N; ++j) cout << a[i][j] << " ";
         cout << endl;
     }
+    cout << endl;
 
     //Find best alignment
-    int row_of_best_alignment = 0;
-    int column_of_best_alignment = 0;
     int best_value = 0;
-    for (int i = 0; i < M; ++i) {
-        for (int j = 0; j < N; ++j) {
-            row_of_best_alignment = (best_value < a[i][j])? i : row_of_best_alignment;
-            column_of_best_alignment = (best_value < a[i][j])? j : column_of_best_alignment;
+    for (int i = 0; i < M; ++i)
+        for (int j = 0; j < N; ++j)
             best_value = best_value < a[i][j]? a[i][j] : best_value;
-        }
 
-    }
-
-    int row;
-    int column;
+    int total_alignments = 0;
     //Find other alignments
     for (int other_good_values = best_value; other_good_values > 0; other_good_values--) {
         for (int i = 0; i < M; ++i) {
             for (int j = 0; j < N; ++j) {
-                if(a[i][j] == other_good_values){
-                    cout << "Score: " << other_good_values << " - Position in Table: a["<<i<<"]["<<j<<"]" << endl;
-                    printS(i,j);
-                    printT(i,j);
-                    cout << endl;
+                if (a[i][j] == other_good_values) {
+                    cout << "Score: " << other_good_values << " - Position in Table: a[" << i << "][" << j << "]" <<
+                                                              endl;
+                    printS(i, j);
+                    printT(i, j);
+                    cout << "Local Alignment for S: ";
+                    printLCSS (i, j);
+                    cout<< endl;
+                    cout << "Local Alignment for T: ";
+                    printLCST (i, j);
+                    cout << endl << endl;
+                    total_alignments++;
 
                 }
             }
-
         }
-
     }
+    cout << endl;
+    cout << "\tAmount of local alignments found: " << total_alignments <<endl;
     //cout <<"Best value = " << best_value << endl <<"Row =" << row_of_best_alignment << " Column =" << column_of_best_alignment << endl;
 
-    //printS(12,9);
-    //printT(12,9);
+    //printS(8,8);
+    //printT(8,8);
     return 0;
 
 }
@@ -147,7 +161,10 @@ void printRecursiveT (int i, int j){
             printRecursiveT(i - 1, j - 1);
             printf("%c", t[j]);
         }
-        else if (dir == UP) printRecursiveT(i - 1, j);
+        else if (dir == UP) {
+            printRecursiveT(i - 1, j);
+            printf("_");
+        }
         else printRecursiveT(i, j - 1);
     }
 }
@@ -179,10 +196,12 @@ void printRecursiveS (int i, int j){
             printRecursiveS(i - 1, j - 1);
             printf("%c", s[i]);
         }
-        else if (dir == UP){
-            printRecursiveS(i - 1, j);
+        else if (dir == UP)printRecursiveS(i - 1, j);
+
+        else{
+            printRecursiveS(i, j - 1);
+            printf("_");
         }
-        else printRecursiveS(i, j - 1);
     }
 }
 void printRestOfS (int i){
@@ -193,4 +212,28 @@ void printRestOfS (int i){
     }
     cout << endl;
 
+}
+//Recursive Algorithm to print Longest Common Subsequence taken from Cormen 3rd Edition
+void printLCSS (int i, int j){
+    if (i == 0 || j==0) return;
+    int dir = walkOverTable(i, j);
+    if (dir == DIAGONAL) {
+        printLCSS(i - 1, j - 1);
+        printf("%c", s[i]);
+    }
+    else if (dir == UP)printLCSS(i - 1, j);
+
+    else printLCSS(i, j - 1);
+}
+//Recursive Algorithm to print Longest Common Subsequence taken from Cormen 3rd Edition
+void printLCST (int i, int j){
+    if (i == 0 || j==0) return;
+    int dir = walkOverTable(i, j);
+    if (dir == DIAGONAL) {
+        printLCST(i - 1, j - 1);
+        printf("%c", t[j]);
+    }
+    else if (dir == UP)printLCST(i - 1, j);
+
+    else printLCST(i, j - 1);
 }
