@@ -11,28 +11,27 @@ using namespace std;
 #define DIRECTION int
 
 
-char s[] = "eAAAC"; //5 + \nul
-char t[] = "eAGC"; //4 + \null
-#define M 5
-#define N 4
+//char s[] = "eAAAC"; //5 + \nul
+//char t[] = "eAGC"; //4 + \null
+//#define M 5
+//#define N 4
 
-//char s[] = "0ATACTACGGAGGG"; //14 + \nul
-//char t[] = "0GAACGTAGGCGTAT"; //15 + \null
-//#define M 14
-//#define N 15
+char s[] = "0ATACTACGGAGGG"; //14 + \nul
+char t[] = "0GAACGTAGGCGTAT"; //15 + \null
+#define M 14
+#define N 15
+
 int a[M][N];
 
 int calculateAlignment (int i, int j);
-char* printPath(int i, int j);
 DIRECTION walkOverTable(int i, int j);
-void getPathS(int i, int j);
-void getPath(int i, int j);
 void printRecursiveT (int i, int j);
 void printRestOfT (int j);
 void printRecursiveS(int i, int j);
 void printRestOfS (int i);
 void printS(int i, int j);
 void printT(int i, int j);
+
 int main(){
 
     //Init with 0 (Local Algorithm) first column and row
@@ -68,10 +67,29 @@ int main(){
         }
 
     }
-    cout <<"Best value = " << best_value << endl <<"Row =" << row_of_best_alignment << " Column =" << column_of_best_alignment << endl;
-    //getPath(3,1);
-    printS(2,1);
-    printT(2,1);
+
+    int row;
+    int column;
+    //Find other alignments
+    for (int other_good_values = best_value; other_good_values > 0; other_good_values--) {
+        for (int i = 0; i < M; ++i) {
+            for (int j = 0; j < N; ++j) {
+                if(a[i][j] == other_good_values){
+                    cout << "Score: " << other_good_values << " - Position in Table: a["<<i<<"]["<<j<<"]" << endl;
+                    printS(i,j);
+                    printT(i,j);
+                    cout << endl;
+
+                }
+            }
+
+        }
+
+    }
+    //cout <<"Best value = " << best_value << endl <<"Row =" << row_of_best_alignment << " Column =" << column_of_best_alignment << endl;
+
+    //printS(12,9);
+    //printT(12,9);
     return 0;
 
 }
@@ -89,77 +107,6 @@ int calculateAlignment (int i, int j){
 
     return max;
 }
-
-void getPathS(int i, int j){
-    int max = (M+N);
-    char* pathT = (char*) malloc(sizeof(char) * max);
-
-    int lineT = i;
-    pathT[i] = t[j];
-
-    for (int k = j; k > 0 ; k--) {
-        DIRECTION dir = walkOverTable(lineT,k);
-        if (dir == UP) lineT--;
-        else if(dir == DIAGONAL) pathT[k-1] = t[k];
-        else if(dir == LEFT) pathT[k-1] = '_';
-
-    }
-    //Preenche a parte da direita de pathT[j]
-    for (int l = j; l < N -1; ++l) {
-        pathT[l] = t[l];
-        printf("%c",pathT[l]);
-    }
-    cout << endl;
-    int m = 0;
-
-    while (pathT[m] != '\0'){
-        printf("%c",pathT[m]);
-        m++;
-    }
-    cout << endl;
-
-}
-
-void getPath(int i, int j){
-    int max = (M+N);
-    char* pathT = (char*) malloc(sizeof(char) * max);
-
-    int lineT = i;
-    pathT[i] = t[j];
-
-    for (int k = j; k > 0 ; k--) {
-        DIRECTION dir = walkOverTable(lineT,k);
-        if (dir == UP) lineT--;
-        else if(dir == DIAGONAL) {
-            pathT[k] = t[k];
-            lineT--;
-        }
-        else if(dir == LEFT) pathT[k] = '_';
-
-    }
-    //Preenche os _ a esquerda, subir as linhas
-    for (int n = lineT; n == 0 ; --n) {
-        pathT[n] = '_';
-
-    }
-    int p=0;
-    //Preenche a parte da direita de pathT[j]
-    for (int l = j; l < N -1; ++l) {
-        pathT[i+p] = t[l];
-        p++;
-        //printf("%c",pathT[l]);
-    }
-    cout << endl;
-    int m = 0;
-
-    while (pathT[m] != '\0'){
-        printf("%c",pathT[m]);
-        m++;
-    }
-    cout << endl;
-
-}
-
 
 
 DIRECTION walkOverTable(int i, int j){
@@ -227,7 +174,7 @@ void printRecursiveS (int i, int j){
     }
     else {
         int dir = walkOverTable(i, j);
-        cout << i << " " << j << " dir:" << dir<< endl;
+        //cout << i << " " << j << " dir:" << dir<< endl;
         if (dir == DIAGONAL) {
             printRecursiveS(i - 1, j - 1);
             printf("%c", s[i]);
