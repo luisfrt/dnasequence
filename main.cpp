@@ -1,3 +1,6 @@
+//Luís Felipe Rabello Taveira
+//Alexandre Lucchesi de Alencar
+
 #include <iostream>
 using namespace std;
 
@@ -61,6 +64,7 @@ int main(){
     //Calculate Matrix
     for (int i = 1; i < M; ++i)
         for (int j = 1; j < N; ++j)
+            //Calcula o score de cada posição
             a[i][j] = calculateAlignment(i,j);
 
     //Print Matrix
@@ -84,11 +88,15 @@ int main(){
                 if (a[i][j] == other_good_values) {
                     cout << "Score: " << other_good_values << " - Position in Table: a[" << i << "][" << j << "]" <<
                                                               endl;
+                    //Imprime a string S desse alinhamento (score)
                     printS(i, j);
+                    //Imprime a string T desse alinhamento (score)
                     printT(i, j);
+                    //Imprime apenas o alinhamento local de S de acordo com o algoritmo do Cormen 3rd Edition
                     cout << "Local Alignment for S: ";
                     printLCSS (i, j);
                     cout<< endl;
+                    //Imprime apenas o alinhamento local de T de acordo com o algoritmo do Cormen 3rd Edition
                     cout << "Local Alignment for T: ";
                     printLCST (i, j);
                     cout << endl << endl;
@@ -102,12 +110,10 @@ int main(){
     cout << "\tAmount of local alignments found: " << total_alignments <<endl;
     //cout <<"Best value = " << best_value << endl <<"Row =" << row_of_best_alignment << " Column =" << column_of_best_alignment << endl;
 
-    //printS(8,8);
-    //printT(8,8);
     return 0;
 
 }
-
+//Função que preenche a matriz, calculando o score para cada posição.
 int calculateAlignment (int i, int j){
     int max = 0;
     int upper_value_in_matrix = a[i][j-1] + GAP_VALUE;
@@ -122,7 +128,8 @@ int calculateAlignment (int i, int j){
     return max;
 }
 
-
+//Algoritmo que substitui a criação de uma tabela específica para armazenar as setas.
+//Ele recupera a "seta" fazendo uma checagem no sentido anti-horário.
 DIRECTION walkOverTable(int i, int j){
     //Check in counter-clock wise
     if(a[i][j] == (a[i-1][j] + GAP_VALUE)) return UP;
@@ -133,16 +140,17 @@ DIRECTION walkOverTable(int i, int j){
 
 }
 
-
+//Imprime a sequencia T que possui o score na posição a[i][j]
 void printT(int i,int j){
     printRecursiveT(i,j);
     printRestOfT(j);
 }
+//Imprime a sequencia S que possui o score na posição a[i][j]
 void printS(int i,int j){
     printRecursiveS(i,j);
     printRestOfS(i);
 }
-
+//Algoritmo para percorer a matriz pelas "setinhas" e imprimir a string t de acordo com as regras das setas
 void printRecursiveT (int i, int j){
     if (i == 0 && j==0) return;
     if (i > 0 && j == 0) {
@@ -155,6 +163,7 @@ void printRecursiveT (int i, int j){
         //printf("_");
     }
     else {
+        //Pega a direção da seta naquela posição da matriz.
         int dir = walkOverTable(i, j);
         //cout << i << " " << j << endl;
         if (dir == DIAGONAL) {
@@ -168,6 +177,8 @@ void printRecursiveT (int i, int j){
         else printRecursiveT(i, j - 1);
     }
 }
+//Imprime a parte da direita da string T, sendo que a parte da esquerda
+// foi impressa pelo algoritmo recursivo printRecursiveT
 void printRestOfT (int j){
     j++;
     while (t[j] != '\0'){
@@ -177,7 +188,7 @@ void printRestOfT (int j){
     cout << endl;
 
 }
-
+//Algoritmo para percorer a matriz pelas "setinhas" e imprimir a string s de acordo com as regras das setas
 void printRecursiveS (int i, int j){
     if (i == 0 && j==0) return;
     if (i > 0 && j == 0) {
@@ -190,20 +201,24 @@ void printRecursiveS (int i, int j){
         printf("_");
     }
     else {
+        //Pega a direção da seta naquela posição da matriz.
         int dir = walkOverTable(i, j);
-        //cout << i << " " << j << " dir:" << dir<< endl;
+        //Se a seta apontar para a diagonal
         if (dir == DIAGONAL) {
             printRecursiveS(i - 1, j - 1);
             printf("%c", s[i]);
         }
+        //Se a seta apontar para cima
         else if (dir == UP)printRecursiveS(i - 1, j);
-
+        //Se a seta apontar para esquerda
         else{
             printRecursiveS(i, j - 1);
             printf("_");
         }
     }
 }
+//Imprime a parte da direita da string S, sendo que a parte da esquerda
+// foi impressa pelo algoritmo recursivo printRecursiveS
 void printRestOfS (int i){
     i++;
     while (s[i] != '\0'){
