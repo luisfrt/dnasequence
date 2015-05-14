@@ -3,5 +3,10 @@ project(progdinamica)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES local.cpp)
 add_executable(progdinamica ${SOURCE_FILES})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+set(SOURCE_FILES global.cpp)
+add_executable(global ${SOURCE_FILES})

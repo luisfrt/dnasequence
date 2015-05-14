@@ -15,7 +15,7 @@ using namespace std;
 #define DIRECTION int
 
 //Directive to choose the input
-#define INPUT 2
+#define INPUT 1
 
 #if INPUT == 1
 //input 1 - Exemplo da apostila (página 7/11)
@@ -174,7 +174,10 @@ void printRecursiveT (int i, int j){
             printRecursiveT(i - 1, j);
             printf("_");
         }
-        else printRecursiveT(i, j - 1);
+        else {
+            printRecursiveT(i, j - 1);
+            printf("%c", t[j]);
+        }
     }
 }
 //Imprime a parte da direita da string T, sendo que a parte da esquerda
@@ -209,7 +212,10 @@ void printRecursiveS (int i, int j){
             printf("%c", s[i]);
         }
         //Se a seta apontar para cima
-        else if (dir == UP)printRecursiveS(i - 1, j);
+        else if (dir == UP){
+            printRecursiveS(i - 1, j);
+            printf("%c", s[i]);
+        }
         //Se a seta apontar para esquerda
         else{
             printRecursiveS(i, j - 1);
